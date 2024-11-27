@@ -1,22 +1,18 @@
-String texto = "";
-String texto_final = "";
 
 void setup() {
   Serial.begin(9600);
 }
 
 void loop() {
-  texto = Serial.readStringUntil('\n');
-  texto_final = "";
-  for (int i = 0; i < texto.length(); i++) {
-    char letra = texto.charAt(i);
-    if (letra >= 97 && letra <= 122) {
-      texto_final += (char)(letra - 32);
-    } else if (letra >= 65 && letra <= 90) {
-      texto_final += (char)(letra + 32);
-    } else {
-      texto_final += letra;
+  if(Serial.available()>0){
+    char texto = Serial.read();
+    if(texto >='A' && texto <='Z'){
+      texto=texto+32;
+    }else if(texto >='a' && texto <='z'){
+      texto=texto-32;
+    }else{
+      texto=texto;
     }
+    Serial.write(texto);
   }
-  Serial.println(texto_final);
 }
