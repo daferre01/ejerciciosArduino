@@ -1,8 +1,11 @@
+int cont = 0;
+
 void setup() {
   Serial.begin(9600);
 }
-int cont=0;
+
 void loop() {
+  Serial.print("Contador: ");
   Serial.println(cont);
   cont++;
   delay(1000);
