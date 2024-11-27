@@ -1,16 +1,12 @@
-int cont = 0;             
-unsigned long milliseg;      
+int cont = 0;                
 unsigned long previousMillis = 0;
-const long intervalo = 1000;
-
+const long interval = 1000;
 void setup() {
   Serial.begin(9600);
-  milliseg = millis();
 }
-
 void loop() {
   unsigned long currentMillis = millis();
-  if (currentMillis - previousMillis >= intervalo) {
+  if (currentMillis - previousMillis >= interval) {
     previousMillis = currentMillis;  
     Serial.println(cont);
     cont++;                          
