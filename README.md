@@ -67,8 +67,4 @@ Este repositorio contiene una serie de ejercicios diseñados para practicar la p
 
 ---
 
-## Cómo usar este repositorio
-1. **Clona el repositorio:**
-   ```bash
-   git clone https://github.com/tuusuario/ejercicios_microcontroladores.git
-   cd ejercicios_microcontroladores
+
