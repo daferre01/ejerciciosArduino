@@ -1,108 +1,92 @@
 #include <stdint.h>
 
-int valorEstado = 1;
-uint64_t tiempoPublicacion = 1000;
-uint64_t marcaTiempo = 0;
-bool publicando = false;
-bool alternarValor = false;
+int estado = 1;
+uint64_t intervalo = 1000;
+uint64_t ultimaEjecucion = 0;
+bool activo = false;
+bool alterno = false;
 
 void setup() {
   Serial.begin(9600);
-  esperarConexionSerie();
-  inicializar();
+  while (!Serial);
+  mostrarAyuda();
 }
 
 void loop() {
-  procesarComandos();
-  if (publicando) {
-    manejarPublicacion();
+  procesarComando();
+  if (activo) {
+    publicar();
   }
 }
 
-void esperarConexionSerie() {
-  while (!Serial) {
-    ; 
-  }
-  delay(500); 
+void mostrarAyuda() {
+  Serial.println("Comandos:");
+  Serial.println("H o h (help): Muestra este menu.");
+  Serial.println("START o start: Inicia la publicacion.");
+  Serial.println("STOP o stop: Detiene la publicacion.");
+  Serial.println("TIME o t: Cambia la frecuencia (1-10 Hz).");
+  Serial.println("MODE o m: Cambia entre fijo y alterno.");
 }
 
-void inicializar() {
-  mostrarOpciones();
-}
-
-void procesarComandos() {
+void procesarComando() {
   if (Serial.available() > 0) {
     String entrada = Serial.readString();
     entrada.trim();
     entrada.toUpperCase();
 
     if (entrada == "H") {
-      mostrarOpciones();
-    } else if (entrada == "INICIAR") {
-      activarPublicacion();
-    } else if (entrada == "DETENER") {
-      detenerPublicacion();
-    } else if (entrada == "FRECUENCIA") {
-      ajustarFrecuencia();
-    } else if (entrada == "CAMBIAR") {
+      mostrarAyuda();
+    } else if (entrada == "START") {
+      iniciar();
+    } else if (entrada == "STOP") {
+      detener();
+    } else if (entrada == "TIME") {
+      cambiarTiempo();
+    } else if (entrada == "MODE") {
       cambiarModo();
     } else {
-      Serial.println("Comando desconocido. Usa 'H' para ver opciones.");
+      Serial.println("Comando desconocido.");
     }
   }
 }
 
-void manejarPublicacion() {
-  uint64_t tiempoActual = millis();
-  if (tiempoActual - marcaTiempo >= tiempoPublicacion) {
-    marcaTiempo = tiempoActual;
-
-    if (alternarValor) {
-      valorEstado = 1 - valorEstado;
-    }
-    Serial.println(valorEstado);
-  }
+void iniciar() {
+  activo = true;
+  Serial.println("Inicio.");
 }
 
-void mostrarOpciones() {
-  Serial.println("=== Menú de comandos ===");
-  Serial.println("H: Mostrar este menú.");
-  Serial.println("INICIAR: Comenzar a enviar datos.");
-  Serial.println("DETENER: Detener el envío de datos.");
-  Serial.println("FRECUENCIA: Ajustar la frecuencia de envío (1 a 10 Hz).");
-  Serial.println("CAMBIAR: Alternar entre modo fijo y alternativo.");
+void detener() {
+  activo = false;
+  Serial.println("Detenido.");
 }
 
-void activarPublicacion() {
-  publicando = true;
-  Serial.println("Publicación activada.");
-}
-
-void detenerPublicacion() {
-  publicando = false;
-  Serial.println("Publicación detenida.");
-}
-
-void ajustarFrecuencia() {
-  Serial.println("Introduce la frecuencia deseada (1 a 10 Hz):");
+void cambiarTiempo() {
+  Serial.println("Frecuencia (1-10):");
   while (Serial.available() == 0);
-
   int frecuencia = Serial.parseInt();
   if (frecuencia >= 1 && frecuencia <= 10) {
-    tiempoPublicacion = 1000 / frecuencia;
-    Serial.print("Frecuencia configurada: ");
+    intervalo = 1000 / frecuencia;
+    Serial.print("Frecuencia: ");
     Serial.print(frecuencia);
     Serial.println(" Hz.");
   } else {
-    Serial.println("Valor no válido. Usa un número entre 1 y 10.");
+    Serial.println("Invalido.");
   }
 }
 
 void cambiarModo() {
-  alternarValor = !alternarValor;
-  if (alternarValor) {
-    Serial.println("Modo alternativo activado. El valor cambiará entre 0 y 1.");
-  } else {
-    Serial.println("Modo fijo activado. El valor se mantendrá en 1.");
+  alterno = !alterno;
+  Serial.println(alterno ? "Modo alterno." : "Modo fijo.");
+}
+
+void publicar() {
+  uint64_t ahora = millis();
+  if (ahora - ultimaEjecucion >= intervalo) {
+    ultimaEjecucion = ahora;
+    if (alterno) {
+      estado = 1 - estado;
+    }
+    Serial.println(estado);
   }
 }
+
